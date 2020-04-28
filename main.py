@@ -61,25 +61,59 @@ def play(freq):
     T = 1.0 / freq  # period of sound wave
     halfT = T / 2.0  # half of period
     
-    for i in range(375):
+    for i in range(375):  # (assume 1000 = 1 sec) do for 3/8 of a second
         GPIO.output(speaker, 1)  # write voltage to piezospeaker
         sleep(halfT)             # wait for half a wavelength
         GPIO.output(speaker, 0)  # stop writing voltage to piezospeaker
         sleep(halfT)             # wait for half a wavelength
         
     return
+###########################
+# plays notes for intro (different note length)
+def playIntro(freq):
+    T = 1.0 / freq
+    halfT = T / 2.0
+
+    for i in range(125):  # (assume 1000 = 1 sec) do for 1/8 of a second
+        GPIO.output(speaker, 1)  # write voltage to piezospeaker
+        sleep(halfT)             # wait for half a wavelength
+        GPIO.output(speaker, 0)  # stop writing voltage to piezospeaker
+        sleep(halfT)             # wait for half a wavelength
+
+    return
 #############################
 # this functions flashes the LEDs a few times when the player loses
 def lose(guessed, correct):
     print "\nUh-oh, you guessed wrong--game over!"
     print "You guessed {}, but the pitch was actually {}.".format(guessed, correct)
+
 ##    for i in range(0, 4):
 ##        flash()
 ##        sleep(0.125)
 ###########################
+# intro tune
+def intro():
+    introNotes = [261.6, "rest", 261.6, 293.7, 261.6, "rest", \
+              261.6, 293.7, 261.6, 293.7, 261.6, 523.3, 392.0, \
+              329.6, 261.6, "rest"]
+    
+    for i in range(len(introNotes)):
+        if (i % 2 ==0):
+            GPIO.output(leds, 1)  # turn LEDs on
+        else:
+            GPIO.output(leds, 0)  # turn LEDs off
+        
+        if (introNotes[i] != "rest"):
+            playIntro(introNotes[i])  # play note
+        else:
+            sleep(0.125)  # wait 1/8 of a second
+            
+    return
+###########################
 # the main part of the program
 
 print "Welcome to Perfect Pitch!"
+intro()
 print "Try to guess the correct pitch by pressing the matching switch."
 print "Press Ctrl+C to exit..."
 
