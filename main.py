@@ -14,14 +14,16 @@ DEBUG = False
 notes = ["C", "C#", "D", "D#", "E", "F", \
          "F#", "G", "G#", "A", "A#", "B"]
 
-# set the GPIO pin numbers
+### set the GPIO pin numbers ###
 # the switches (from L to R)
+#           C   C#  D   D#  E   F   F#  G   G#  A  A#  B
 switches = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 6, 5]
 
 # the LEDs (from L to R)
+#       WHT BLU WHT BLU
 leds = [17, 16, 13, 12]
 
-# piezospeaker
+# piezospeaker - from ENGR 121 class
 speaker = 4
 
 # map note names to Hz frequencies
@@ -33,9 +35,9 @@ notePitches = {"C":261.6, "C#":277.2, \
            "A#":466.2, "B":493.9}
 
 # map note names to switch pins
-noteSwitches = {}
-for i in range(12):
-    noteSwitches[notes[i]] = switches[i]
+noteSwitches = {}  # create empty dictionary
+for i in range(12):  # do for each note
+    noteSwitches[notes[i]] = switches[i]  # add switch pin number as value w/ note name as key
 if (DEBUG):
     print noteSwitches
 
@@ -53,6 +55,7 @@ GPIO.setup(speaker, GPIO.OUT)
 ##        GPIO.output(leds[i], 1)  # write voltage to pin at i
 ##        sleep(0.125)             # wait 1/8 of a second
 ##        GPIO.output(leds[i], 0)  # stop writing voltage to pin at i
+##        sleep(0.125)             # wait 1/8 of a second
 ##
 ##    return
 #############################
@@ -89,7 +92,6 @@ def lose(guessed, correct):
 
 ##    for i in range(0, 4):
 ##        flash()
-##        sleep(0.125)
 ###########################
 # intro tune
 def intro():
@@ -110,11 +112,59 @@ def intro():
             
     return
 ###########################
+# prints text in shell explaining how to play;
+# pauses b/w different blocks of text to make
+# it easier for the user to read instead of
+# spitting out one big wall of text
+def tutorial():
+    # display header text to shell
+    print "        HOW TO PLAY        "
+    print "###########################"
+    sleep(0.875)  # wait 7/8 of a second
+    
+    # display first sentence text to shell
+    print "Perfect Pitch uses a piezospeaker to produce a tone at a given"
+    print "pitch randomly chosen by the computer."
+    sleep(1.0)  # wait 1 second
+    
+    # display second sentence text to shell
+    print "The object of the game is for the player to correctly guess which"
+    print "musical note corresponds to that pitch by pressing the matching"
+    print "button on the circuit board."
+    sleep(1.0)  # wait 1 second
+    
+    # display third sentence text to shell
+    print "The 12 buttons on the circuit board are arranged to resemble a set"
+    print "of piano keys; in case you're not familiar with what the layout of"
+    print "a piano looks like, here's an ASCII art visual representation that"
+    print "has all of the keys labeled with their corresponding note names:\n"
+    sleep(0.90625)  # wait 29/32 of a second
+    
+    # display piano diagram text to shell
+    print "  C# D#    F# G# A#  "
+    print "| [] [] |  [] [] [] |"
+    print "[_][_][_][_][_][_][_]"
+    print " C  D  E  F  G  A  B "
+    sleep(1.09375)  # wait 1 3/32 seconds
+    
+    # display prompt text to shell
+    print "\n(Press any of the buttons on the circuit board to close this"
+    print "tutorial and start playing the game.)\n"
+    
+    pressed = False  # no switch initially pressed
+        while (not pressed):  # as long as no switch is pressed...
+            for i in range(len(switches)):  # ...check status of each switch
+                while (GPIO.input(switches[i]) == True):  # if a switch is pressed...
+                    pressed = True  # ...note switch has been pressed
+    
+    return  # go back to function call location
+###########################
 # the main part of the program
 
 print "Welcome to Perfect Pitch!"
 intro()
-print "Try to guess the correct pitch by pressing the matching switch."
+print "Try to guess the correct pitch by pressing the matching switch.\n"
+tutorial()
 print "Press Ctrl+C to exit..."
 
 # we'll discuss this later, but this allows us to detect
