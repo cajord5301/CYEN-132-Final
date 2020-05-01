@@ -152,11 +152,17 @@ def tutorial():
     print "tutorial and start playing the game.)\n"
     
     pressed = False  # no switch initially pressed
-        while (not pressed):  # as long as no switch is pressed...
-            for i in range(len(switches)):  # ...check status of each switch
-                while (GPIO.input(switches[i]) == True):  # if a switch is pressed...
-                    pressed = True  # ...note switch has been pressed
-    
+    while (not pressed):  # as long as no switch is pressed...
+        for i in range(len(switches)):  # ...check status of each switch
+            while (GPIO.input(switches[i]) == True):  # if a switch is pressed...
+                pressed = True  # ...note switch has been pressed
+
+    for i in range(3, 0, -1):
+        print "{}...".format(i)
+        sleep(1.0)
+
+    print "START!\n"
+
     return  # go back to function call location
 ###########################
 # the main part of the program
