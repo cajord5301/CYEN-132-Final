@@ -167,6 +167,12 @@ def tutorial():
 ###########################
 # the main part of the program
 
+# each item in the sequence represents an LED (or switch), indexed at 0 through 3
+seq = []
+# randomly add the first two items to the sequence
+seq.append(randint(0,3))
+seq.append(randint(0,3))
+
 print "Welcome to Perfect Pitch!"
 intro()
 print "Try to guess the correct pitch by pressing the matching switch.\n"
@@ -178,6 +184,8 @@ print "Press Ctrl+C to exit..."
 try:
     # keep going until the user presses Ctrl+C
     while (True):
+        # randomly add one more item to the sequence
+        seq.append(randint(0,3))
         note = choice(notes)
         pitch = notePitches[note]
         switch = noteSwitches[note]
@@ -187,9 +195,55 @@ try:
             print "note = {}".format(note)
             print "pitch = {} Hz".format(pitch)
             print "switch # = {}".format(switch)
+                  
+                 # display the sequence using the LEDs
+        for s in seq:
+            #if sequence is less than 15
+            if (len(seq) < 15):
+                # turn the appropriate LED on
+                GPIO.output(leds[s], True)
+                # play its corresponding sound
+                play(pitch)
+                if (len(seq) < 5):
+                    # standard play and delay times
+                    # wait and turn the LED off again
+                    sleep(1)
+                    GPIO.output(leds[s], False)
+                    sleep(0.5)
 
-        # play note pitch using piezospeaker
-        play(pitch)
+                elif (len(seq) < 7):
+                    # first decrease of play and delay times
+                    sleep(0.9)
+                    GPIO.output(leds[s], False)
+                    sleep(0.4)
+
+                elif (len(seq) < 10):
+                    # second decrease of play and delay times
+                    sleep(0.8)
+                    GPIO.output(leds[s], False)
+                    sleep(0.3)
+
+                elif (len(seq) < 13):
+                    # third decrease of play and delay times
+                    sleep(0.7)
+                    GPIO.output(led[s], False)
+                    sleep(0.25)
+
+                elif (len(seq) < 15):
+                    # fourth decrease of play and delay times
+                    sleep(0.6)
+                    GPIO.output(led[s], False)
+                    sleep(0.15)
+                    
+            # if sequence is equal to or greater than 15:
+            # do not turn on the LED
+            # only play the corresponding sound
+            else:
+                play(pitch)
+                sleep(0.6)
+                sleep(0.15)
+         
+        
 
         # wait for player input (via the switches)
         # initially no pitch has been guessed
