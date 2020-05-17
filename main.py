@@ -167,11 +167,11 @@ def tutorial():
 ###########################
 # the main part of the program
 
-# each item in the sequence represents an LED (or switch), indexed at 0 through 3
+# each item in the sequence represents a switch, indexed at 0 through 3
 seq = []
 # randomly add the first two items to the sequence
-seq.append(randint(0,3))
-seq.append(randint(0,3))
+seq.append(choice(notePitches))
+seq.append(choice(notePitches))
 
 print "Welcome to Perfect Pitch!"
 intro()
@@ -183,12 +183,12 @@ print "Press Ctrl+C to exit..."
 # when Ctrl+C is pressed so that we can reset the GPIO pins
 try:
     # keep going until the user presses Ctrl+C
-    while (True):
-        # randomly add one more item to the sequence
-        seq.append(randint(0,3))
+    while (True):       
         note = choice(notes)
         pitch = notePitches[note]
         switch = noteSwitches[note]
+        # randomly add one more item to the sequence
+        seq.append(choice(pitch))
 
         # in debug mode, print note name, pitch frequency, and pin #
         if (DEBUG):
@@ -196,43 +196,36 @@ try:
             print "pitch = {} Hz".format(pitch)
             print "switch # = {}".format(switch)
                   
-                 # display the sequence using the LEDs
+        # display the sequence using the LEDs
         for s in seq:
             #if sequence is less than 15
             if (len(seq) < 15):
-                # turn the appropriate LED on
-                GPIO.output(leds[s], True)
                 # play its corresponding sound
                 play(pitch)
                 if (len(seq) < 5):
                     # standard play and delay times
                     # wait and turn the LED off again
                     sleep(1)
-                    GPIO.output(leds[s], False)
                     sleep(0.5)
 
                 elif (len(seq) < 7):
                     # first decrease of play and delay times
                     sleep(0.9)
-                    GPIO.output(leds[s], False)
                     sleep(0.4)
 
                 elif (len(seq) < 10):
                     # second decrease of play and delay times
                     sleep(0.8)
-                    GPIO.output(leds[s], False)
                     sleep(0.3)
 
                 elif (len(seq) < 13):
                     # third decrease of play and delay times
                     sleep(0.7)
-                    GPIO.output(led[s], False)
                     sleep(0.25)
 
                 elif (len(seq) < 15):
                     # fourth decrease of play and delay times
                     sleep(0.6)
-                    GPIO.output(led[s], False)
                     sleep(0.15)
                     
             # if sequence is equal to or greater than 15:
@@ -248,6 +241,8 @@ try:
         # wait for player input (via the switches)
         # initially no pitch has been guessed
         pitchGuessed = False
+        # initialize the count of switches pressed to 0
+        switch_count = 0
         # keep waiting for player to guess
         while (not pitchGuessed):
             # initially note that no switch is pressed
@@ -271,20 +266,23 @@ try:
 
             if (DEBUG):
                 # display index and pin number of switch pressed
-                print "val = {} = {}".format(val, notes[val]) 
+                print "val = {} = {}".format(val, notes[val])
+                
 
             # play the corresponding sound
             play(guessPitch)
 
-            # check to see if this pitch matches the random one
-            if (guessPitch != pitch):
+            # check to see if the guess is correct in the sequence
+            if (val != seq[switch_count]):
                 # player is incorrect; invoke the lose function
                 lose(guessNote, note)  # pass note guessed and actual note to function so game over message can be printed onscreen
                 # reset the GPIO pins
                 GPIO.cleanup()
                 # exit the game
                 exit(0)
-
+                
+            switch_count += 1
+            
 # detect Ctrl+C
 except KeyboardInterrupt:
     # reset the GPIO pins
