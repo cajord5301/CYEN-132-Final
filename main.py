@@ -170,8 +170,8 @@ def tutorial():
 # each item in the sequence represents a switch, indexed at 0 through 3
 seq = []
 # randomly add the first two items to the sequence
-seq.append(choice(notePitches))
-seq.append(choice(notePitches))
+seq.append(notePitches[choice(notes)])
+seq.append(notePitches[choice(notes)])
 
 print "Welcome to Perfect Pitch!"
 intro()
