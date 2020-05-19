@@ -1,5 +1,5 @@
 #############################################################################
-# Name: CJ Jordan, Makayla Price, Keiser Dallas
+# Name: CJ Jordan (DROPPED), Makayla Price, Keiser Dallas
 # Date: 18 May 2020
 # Description: Final Pi Project - "Perfect Pitch"
 #############################################################################
