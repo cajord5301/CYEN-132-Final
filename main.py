@@ -48,19 +48,11 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(switches, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(leds, GPIO.OUT)
 GPIO.setup(speaker, GPIO.OUT)
-###########################
-# this function flashes the LEDs
-##def flash():
-##    for i in range(len(leds)):
-##        GPIO.output(leds[i], 1)  # write voltage to pin at i
-##        sleep(0.125)             # wait 1/8 of a second
-##        GPIO.output(leds[i], 0)  # stop writing voltage to pin at i
-##        sleep(0.125)             # wait 1/8 of a second
-##
-##    return
-#############################
+
 # plays pitch at given frequency
-def play(freq):
+def play(freq, soundTime):
+    soundTime *= 1000 # multiplies the soundTime by 1000
+    soundTime = int(soundTime) # sets soundTime as an int  
     T = 1.0 / freq  # period of sound wave
     halfT = T / 2.0  # half of period
     
@@ -71,6 +63,7 @@ def play(freq):
         sleep(halfT)             # wait for half a wavelength
         
     return
+    
 ###########################
 # plays notes for intro (different note length)
 def playIntro(freq):
@@ -84,14 +77,14 @@ def playIntro(freq):
         sleep(halfT)             # wait for half a wavelength
 
     return
+    
 #############################
-# this functions flashes the LEDs a few times when the player loses
+# this functions tells the player what note they got wrong at the end
 def lose(guessed, correct):
     print "\nUh-oh, you guessed wrong--game over!"
     print "You guessed {}, but the pitch was actually {}.".format(guessed, correct)
 
-##    for i in range(0, 4):
-##        flash()
+
 ###########################
 # intro tune
 def intro():
@@ -111,6 +104,7 @@ def intro():
             sleep(0.125)  # wait 1/8 of a second
             
     return
+    
 ###########################
 # prints text in shell explaining how to play;
 # pauses b/w different blocks of text to make
@@ -164,6 +158,7 @@ def tutorial():
     print "START!\n"
 
     return  # go back to function call location
+    
 ###########################
 # the main part of the program
 
@@ -188,7 +183,7 @@ try:
         pitch = notePitches[note]
         switch = noteSwitches[note]
         # randomly add one more item to the sequence
-        seq.append(choice(pitch))
+        seq.append(pitch)
 
         # in debug mode, print note name, pitch frequency, and pin #
         if (DEBUG):
@@ -196,55 +191,47 @@ try:
             print "pitch = {} Hz".format(pitch)
             print "switch # = {}".format(switch)
                   
+                
+        if (len(seq) < 5):
+        # standard play and delay times
+        soundTime = 0.9
+        delayTime = 0.5
+
+        elif (len(seq) >= 5) and (len(seq) < 7):
+        # first decrease of play and delay times
+        soundTime = 0.8
+        delayTime = 0.4
+
+        elif (len(seq) >= 7)and (len(seq) < 10):
+        # second decrease of play and delay times
+        soundTime = 0.7
+        delayTime = 0.3
+
+        elif (len(seq) >= 10 and (len(seq) < 13):
+        # third decrease of play and delay times
+        soundTime = 0.6
+        delayTime = 0.25
+
+        elif (len(seq) >= 13):
+        # fourth decrease of play and delay times
+        soundTime = 0.5
+        delayTime = 0.15
+                    
         # display the sequence using the LEDs
         for s in seq:
             #if sequence is less than 15
             if (len(seq) < 15):
                 # play its corresponding sound
-                play(pitch)
-                if (len(seq) < 5):
-                    # standard play and delay times
-                    # wait and turn the LED off again
-                    sleep(1)
-                    sleep(0.5)
-
-                elif (len(seq) < 7):
-                    # first decrease of play and delay times
-                    sleep(0.9)
-                    sleep(0.4)
-
-                elif (len(seq) < 10):
-                    # second decrease of play and delay times
-                    sleep(0.8)
-                    sleep(0.3)
-
-                elif (len(seq) < 13):
-                    # third decrease of play and delay times
-                    sleep(0.7)
-                    sleep(0.25)
-
-                elif (len(seq) < 15):
-                    # fourth decrease of play and delay times
-                    sleep(0.6)
-                    sleep(0.15)
-                    
-            # if sequence is equal to or greater than 15:
-            # do not turn on the LED
-            # only play the corresponding sound
-            else:
-                play(pitch)
-                sleep(0.6)
-                sleep(0.15)
-         
-        
-
+                play(s, soundTime)
+                sleep(soundTime)
+                sleep(delayTime)
+                
         # wait for player input (via the switches)
         # initially no pitch has been guessed
-        pitchGuessed = False
         # initialize the count of switches pressed to 0
         switch_count = 0
         # keep waiting for player to guess
-        while (not pitchGuessed):
+        while (switch_count < len(seq)):
             # initially note that no switch is pressed
             # this will help with switch debouncing
             pressed = False
@@ -263,17 +250,18 @@ try:
             guessPitch = notePitches[notes[val]]  # store Hz frequency of user's guess
             guessSwitch = noteSwitches[notes[val]]  # store pin number of user's guess
             pitchGuessed = True  # pitch has been guessed
-
-            if (DEBUG):
-                # display index and pin number of switch pressed
-                print "val = {} = {}".format(val, notes[val])
-                
+               
 
             # play the corresponding sound
-            play(guessPitch)
+            play(guessPitch, 0.375)
+            sleep(0.25)
+            
+            if (DEBUG):
+            # display index and pin number of switch pressed
+            print "val = {} = {}".format(val, notes[val])
 
             # check to see if the guess is correct in the sequence
-            if (val != seq[switch_count]):
+            if (guessPitch != seq[switch_count]):
                 # player is incorrect; invoke the lose function
                 lose(guessNote, note)  # pass note guessed and actual note to function so game over message can be printed onscreen
                 # reset the GPIO pins
